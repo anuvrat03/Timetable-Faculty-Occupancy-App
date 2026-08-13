@@ -9,7 +9,6 @@ function initData() {
             console.error("Error loading saved database", e);
         }
     }
-    // Keep output table completely blank on startup
     displayData([]);
 }
 
@@ -48,19 +47,20 @@ function displayData(data) {
     });
 }
 
+// Flexible search ignoring dots and spaces
 function searchFaculty() {
-    const query = document.getElementById("searchFaculty").value.toLowerCase().trim();
+    const rawQuery = document.getElementById("searchFaculty").value;
+    const cleanQuery = rawQuery.toLowerCase().replace(/[\s.]/g, "");
     
-    // Hide all details if search box is empty
-    if (!query) {
+    if (!cleanQuery) {
         displayData([]);
         return;
     }
 
-    // Filter strictly by the entered faculty name
-    const filtered = masterDatabase.filter(item => 
-        item.faculty_name.toLowerCase().includes(query)
-    );
+    const filtered = masterDatabase.filter(item => {
+        const cleanName = (item.faculty_name || "").toLowerCase().replace(/[\s.]/g, "");
+        return cleanName.includes(cleanQuery);
+    });
     
     displayData(filtered);
 }
@@ -74,7 +74,7 @@ function refreshForm() {
 function loadAIStudioJSON() {
     const raw = document.getElementById("jsonInput").value.trim();
     if (!raw) {
-        alert("Please paste valid JSON from Google AI Studio.");
+        alert("Please paste valid JSON data.");
         return;
     }
 
@@ -102,11 +102,12 @@ function loadAIStudioJSON() {
             saveToLocalStorage();
             document.getElementById("jsonInput").value = "";
             alert(`Successfully added ${newEntries.length} schedule entries! Search the faculty name to view.`);
+            searchFaculty(); // Auto-refresh search results if a query is active
         } else {
-            alert("Could not extract occupancy entries. Ensure standard AI Studio JSON format is used.");
+            alert("Could not extract occupancy entries. Check JSON structure.");
         }
     } catch (err) {
-        alert("Invalid JSON format. Check raw text from AI Studio.");
+        alert("Invalid JSON format. Please ensure valid JSON is pasted.");
     }
 }
 
