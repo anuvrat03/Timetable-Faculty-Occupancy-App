@@ -3,77 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmacy Faculty Occupancy Tracker</title>
+    <title>Pharmacy Faculty Occupancy Search</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <header>
-        <div>
+    <header class="app-header">
+        <div class="header-titles">
             <h1>Pharmacy Faculty Occupancy Search</h1>
-            <p class="subtitle">Institute of Pharmacy Schedule & Availability System</p>
+            <p>Institute of Pharmacy Schedule & Availability System</p>
         </div>
-        <div class="action-bar">
-            <button class="btn btn-outline" onclick="exportJSON()">📥 Export Backup (JSON)</button>
-            <button class="btn btn-outline" onclick="exportCSV()">📊 Export CSV</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">📤 Import Backup</button>
-            <input type="file" id="importFileInput" class="hidden-file" accept=".json,.csv" onchange="importFile(event)">
-            <button class="btn btn-success" onclick="refreshForm()">🔄 Refresh / Reset</button>
+        <div class="top-actions">
+            <button class="btn btn-secondary" onclick="exportJSON()">📥 Export Backup (JSON)</button>
+            <button class="btn btn-secondary" onclick="exportCSV()">📊 Export CSV</button>
+            <label class="btn btn-secondary btn-file">
+                📤 Import Backup <input type="file" accept=".json,.csv" onchange="importFile(event)" hidden>
+            </label>
+            <button class="btn btn-danger" onclick="refreshForm()">🔄 Refresh / Reset</button>
         </div>
     </header>
 
-    <div class="grid">
-        <!-- Left Column: Search & Import Data -->
-        <div>
-            <div class="card" style="margin-bottom: 20px;">
-                <h2>🔍 Search Faculty Occupancy</h2>
-                <div class="form-group">
-                    <label for="searchFaculty">Enter Faculty Name / Initials</label>
-                    <input type="text" id="searchFaculty" placeholder="e.g. Dr. A. V. Sharma" oninput="searchFaculty()">
-                </div>
-                <div class="info-box">
-                    <strong>Note:</strong> Results will only appear when a search name is entered.
-                </div>
-            </div>
-
+    <main class="main-container">
+        <!-- Left Sidebar: Actions & Data Entry -->
+        <aside class="sidebar">
+            
+            <!-- 1. Search Box -->
             <div class="card">
-                <h2>➕ Paste or upload TimeTable Data</h2>
-                <p class="sub-text">Paste the extracted JSON response from AI Studio here to append new timetable entries.</p>
-                <div class="form-group">
-                    <textarea id="jsonInput" placeholder="Paste JSON data here..."></textarea>
+                <h3>🔍 Search Faculty Occupancy</h3>
+                <label for="searchFaculty" class="form-label">Enter Faculty Name / Initials</label>
+                <input type="text" id="searchFaculty" class="form-control" placeholder="e.g. Dr. A. V. Sharma" oninput="searchFaculty()">
+                <p class="note"><strong>Note:</strong> Results will update instantly as you type.</p>
+            </div>
+
+            <!-- 2. AI Direct Timetable File Upload -->
+            <div class="card">
+                <h3>📁 Upload Timetable File (PDF / Image)</h3>
+                <p class="note">Upload a master timetable image or PDF to extract all faculty schedules automatically using AI.</p>
+                <input type="file" id="autoFileInput" class="form-control-file" accept="image/*,.pdf" onchange="processDirectFileUpload(event)">
+                <div id="uploadStatus" style="color: #007bff; margin-top: 10px; font-weight: bold; font-size: 13px;"></div>
+            </div>
+
+            <!-- 3. Manual JSON Data Ingestion (Fallback) -->
+            <div class="card">
+                <h3>➕ Paste JSON TimeTable Data</h3>
+                <p class="note">Paste extracted JSON response from AI Studio here if you wish to append entries manually.</p>
+                <textarea id="jsonInput" class="form-control" rows="5" placeholder="Paste JSON data here..."></textarea>
+                <button class="btn btn-primary btn-block" onclick="loadAIStudioJSON()">Save Timetable Data</button>
+            </div>
+
+        </aside>
+
+        <!-- Right Panel: Display Table -->
+        <section class="content-area">
+            <div class="card table-card">
+                <div class="table-header">
+                    <h3>📅 Faculty Occupancy Results</h3>
+                    <span id="recordCount" class="record-badge">0 Record(s) Found</span>
                 </div>
-                <button class="btn" style="width: 100%; justify-content: center;" onclick="loadAIStudioJSON()">Save Timetable Data</button>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Faculty</th>
+                                <th>Day</th>
+                                <th>Session / Time</th>
+                                <th>Class / Sem</th>
+                                <th>Type / Batch</th>
+                                <th>Room / Lab #</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="6" class="placeholder-text" style="text-align: center; padding: 20px;">
+                                    Type a faculty name or initials in the search box.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-
-        <!-- Right Column: Specific Results Table -->
-        <div class="card">
-            <div class="table-header">
-                <h2>📅 Faculty Occupancy Results</h2>
-                <span id="recordCount">0 Records Found</span>
-            </div>
-
-            <table id="scheduleTable">
-                <thead>
-                    <tr>
-                        <th>Faculty</th>
-                        <th>Day</th>
-                        <th>Session / Time</th>
-                        <th>Class / Sem</th>
-                        <th>Type / Batch</th>
-                        <th>Room / Lab #</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr>
-                        <td colspan="6" class="placeholder-text">
-                            Type a faculty name in the search box to view occupancy details.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <script src="app.js"></script>
 </body>
